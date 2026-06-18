@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm show *)"
+      "Bash(npm show *)",
+      "Bash(Remove-Item \"c:\\\\Users\\\\youan\\\\Downloads\\\\full-stack-blog-completed\\\\full-stack-blog-completed\\\\render.yaml\")"
     ]
   }
 }
