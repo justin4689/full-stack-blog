@@ -1,15 +1,16 @@
 import PostListItem from "./PostListItem";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import axios from "axios";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useSearchParams } from "react-router-dom";
+import { PostListSkeleton } from "./Skeleton";
 
 const fetchPosts = async (pageParam, searchParams) => {
   const searchParamsObj = Object.fromEntries([...searchParams]);
 
   console.log(searchParamsObj);
 
-  const res = await axios.get(`${import.meta.env.VITE_API_URL}/posts`, {
+  const res = await axios.get(`/posts`, {
     params: { page: pageParam, limit: 10, ...searchParamsObj },
   });
   return res.data;
@@ -35,7 +36,7 @@ const PostList = () => {
   });
 
   // if (status === "loading") return "Loading...";
-  if (isFetching) return "Loading...";
+  if (isFetching) return <PostListSkeleton />;
   
 
   // if (status === "error") return "Something went wrong!";
@@ -48,7 +49,7 @@ const PostList = () => {
       dataLength={allPosts.length}
       next={fetchNextPage}
       hasMore={!!hasNextPage}
-      loader={<h4>Loading more posts...</h4>}
+      loader={<PostListSkeleton />}
       endMessage={
         <p>
           <b>All posts loaded!</b>

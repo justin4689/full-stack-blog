@@ -3,6 +3,7 @@ import Comment from "./Comment";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../context/AuthContext.jsx";
 import { toast } from "react-toastify";
+import { CommentsSkeleton } from "./Skeleton";
 
 const Comments = ({ postId }) => {
   const { user } = useAuth();
@@ -39,7 +40,7 @@ const Comments = ({ postId }) => {
         <button className="bg-blue-800 px-4 py-3 text-white font-medium rounded-xl">Send</button>
       </form>
       {isPending ? (
-        "Loading..."
+        <CommentsSkeleton />
       ) : error ? (
         "Error loading comments!"
       ) : (

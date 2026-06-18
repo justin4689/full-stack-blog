@@ -1,6 +1,21 @@
 import { IKImage } from "imagekitio-react";
 
 const Image = ({ src, className, w, h, alt }) => {
+  if (!src) return null;
+
+  if (src.startsWith("http") || src.startsWith("/")) {
+    return (
+      <img
+        src={src}
+        className={className}
+        alt={alt || ""}
+        width={w}
+        height={h}
+        loading="lazy"
+      />
+    );
+  }
+
   return (
     <IKImage
       urlEndpoint={import.meta.env.VITE_IK_URL_ENDPOINT}
@@ -11,12 +26,7 @@ const Image = ({ src, className, w, h, alt }) => {
       alt={alt}
       width={w}
       height={h}
-      transformation={[
-        {
-          width: w,
-          height: h,
-        },
-      ]}
+      transformation={[{ width: w, height: h }]}
     />
   );
 };
