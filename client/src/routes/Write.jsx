@@ -1,4 +1,4 @@
-import { useAuth, useUser } from "@clerk/clerk-react";
+import { useAuth } from "../context/AuthContext.jsx";
 import "react-quill-new/dist/quill.snow.css";
 import ReactQuill from "react-quill-new";
 import { useMutation } from "@tanstack/react-query";
@@ -9,12 +9,13 @@ import { toast } from "react-toastify";
 import Upload from "../components/Upload";
 
 const Write = () => {
-  const { isLoaded, isSignedIn } = useUser();
+  const { user, token } = useAuth();
   const [value, setValue] = useState("");
   const [cover, setCover] = useState("");
   const [img, setImg] = useState("");
   const [video, setVideo] = useState("");
   const [progress, setProgress] = useState(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     img && setValue((prev) => prev + `<p><image src="${img.url}"/></p>`);
@@ -22,22 +23,13 @@ const Write = () => {
 
   useEffect(() => {
     video &&
-      setValue(
-        (prev) => prev + `<p><iframe class="ql-video" src="${video.url}"/></p>`
-      );
+      setValue((prev) => prev + `<p><iframe class="ql-video" src="${video.url}"/></p>`);
   }, [video]);
-
-  const navigate = useNavigate();
-
-  const { getToken } = useAuth();
 
   const mutation = useMutation({
     mutationFn: async (newPost) => {
-      const token = await getToken();
       return axios.post(`${import.meta.env.VITE_API_URL}/posts`, newPost, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
     },
     onSuccess: (res) => {
@@ -46,18 +38,13 @@ const Write = () => {
     },
   });
 
-  if (!isLoaded) {
-    return <div className="">Loading...</div>;
-  }
-
-  if (isLoaded && !isSignedIn) {
+  if (!user) {
     return <div className="">You should login!</div>;
   }
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-
     const data = {
       img: cover.filePath || "",
       title: formData.get("title"),
@@ -65,9 +52,6 @@ const Write = () => {
       desc: formData.get("desc"),
       content: value,
     };
-
-    console.log(data);
-
     mutation.mutate(data);
   };
 
@@ -87,14 +71,8 @@ const Write = () => {
           name="title"
         />
         <div className="flex items-center gap-4">
-          <label htmlFor="" className="text-sm">
-            Choose a category:
-          </label>
-          <select
-            name="category"
-            id=""
-            className="p-2 rounded-xl bg-white shadow-md"
-          >
+          <label className="text-sm">Choose a category:</label>
+          <select name="category" className="p-2 rounded-xl bg-white shadow-md">
             <option value="general">General</option>
             <option value="web-design">Web Design</option>
             <option value="development">Development</option>
@@ -108,14 +86,10 @@ const Write = () => {
           name="desc"
           placeholder="A Short Description"
         />
-        <div className="flex flex-1 ">
+        <div className="flex flex-1">
           <div className="flex flex-col gap-2 mr-2">
-            <Upload type="image" setProgress={setProgress} setData={setImg}>
-              🌆
-            </Upload>
-            <Upload type="video" setProgress={setProgress} setData={setVideo}>
-              ▶️
-            </Upload>
+            <Upload type="image" setProgress={setProgress} setData={setImg}>🌆</Upload>
+            <Upload type="video" setProgress={setProgress} setData={setVideo}>▶️</Upload>
           </div>
           <ReactQuill
             theme="snow"
@@ -132,7 +106,6 @@ const Write = () => {
           {mutation.isPending ? "Loading..." : "Send"}
         </button>
         {"Progress:" + progress}
-        {/* {mutation.isError && <span>{mutation.error.message}</span>} */}
       </form>
     </div>
   );
