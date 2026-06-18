@@ -4,27 +4,21 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../context/AuthContext.jsx";
 import { toast } from "react-toastify";
 
-const fetchComments = async (postId) => {
-  const res = await axios.get(`${import.meta.env.VITE_API_URL}/comments/${postId}`);
-  return res.data;
-};
-
 const Comments = ({ postId }) => {
-  const { user, token } = useAuth();
+  const { user } = useAuth();
   const queryClient = useQueryClient();
 
   const { isPending, error, data } = useQuery({
     queryKey: ["comments", postId],
-    queryFn: () => fetchComments(postId),
+    queryFn: async () => {
+      const res = await axios.get(`/comments/${postId}`);
+      return res.data;
+    },
   });
 
   const mutation = useMutation({
     mutationFn: async (newComment) => {
-      return axios.post(
-        `${import.meta.env.VITE_API_URL}/comments/${postId}`,
-        newComment,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      return axios.post(`/comments/${postId}`, newComment);
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["comments", postId] }),
     onError: (error) => toast.error(error.response.data),
@@ -41,14 +35,8 @@ const Comments = ({ postId }) => {
     <div className="flex flex-col gap-8 lg:w-3/5 mb-12">
       <h1 className="text-xl text-gray-500 underline">Comments</h1>
       <form onSubmit={handleSubmit} className="flex items-center justify-between gap-8 w-full">
-        <textarea
-          name="desc"
-          placeholder="Write a comment..."
-          className="w-full p-4 rounded-xl"
-        />
-        <button className="bg-blue-800 px-4 py-3 text-white font-medium rounded-xl">
-          Send
-        </button>
+        <textarea name="desc" placeholder="Write a comment..." className="w-full p-4 rounded-xl" />
+        <button className="bg-blue-800 px-4 py-3 text-white font-medium rounded-xl">Send</button>
       </form>
       {isPending ? (
         "Loading..."

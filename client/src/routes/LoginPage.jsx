@@ -15,11 +15,8 @@ const LoginPage = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, {
-        email,
-        password,
-      });
-      login(res.data.user, res.data.token);
+      const res = await axios.post("/auth/login", { email, password });
+      login(res.data);
       navigate("/");
     } catch (err) {
       toast.error(err.response?.data || "Login failed!");
@@ -60,9 +57,7 @@ const LoginPage = () => {
         </button>
         <p className="text-center text-sm text-gray-500">
           Don't have an account?{" "}
-          <Link to="/register" className="text-blue-800 font-medium">
-            Register
-          </Link>
+          <Link to="/register" className="text-blue-800 font-medium">Register</Link>
         </p>
       </form>
     </div>

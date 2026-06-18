@@ -7,12 +7,14 @@ import userRouter from "./routes/user.route.js";
 import postRouter from "./routes/post.route.js";
 import commentRouter from "./routes/comment.route.js";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 
-app.use(cors({ origin: process.env.CLIENT_URL }));
+app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
+app.use(cookieParser());
 app.use(express.json());
 
 app.use("/auth", authRouter);

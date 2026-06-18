@@ -6,16 +6,12 @@ import { toast } from "react-toastify";
 import axios from "axios";
 
 const Comment = ({ comment, postId }) => {
-  const { user, token } = useAuth();
+  const { user } = useAuth();
   const isAdmin = user?.role === "admin";
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: async () => {
-      return axios.delete(`${import.meta.env.VITE_API_URL}/comments/${comment._id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-    },
+    mutationFn: () => axios.delete(`/comments/${comment._id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["comments", postId] });
       toast.success("Comment deleted successfully");
@@ -32,10 +28,7 @@ const Comment = ({ comment, postId }) => {
         <span className="font-medium">{comment.user.username}</span>
         <span className="text-sm text-gray-500">{format(comment.createdAt)}</span>
         {user && (comment.user.username === user.username || isAdmin) && (
-          <span
-            className="text-xs text-red-300 hover:text-red-500 cursor-pointer"
-            onClick={() => mutation.mutate()}
-          >
+          <span className="text-xs text-red-300 hover:text-red-500 cursor-pointer" onClick={() => mutation.mutate()}>
             delete{mutation.isPending && <span>(in progress)</span>}
           </span>
         )}

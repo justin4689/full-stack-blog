@@ -2,6 +2,13 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
 
+const COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+};
+
 export const register = async (req, res) => {
   const { username, email, password } = req.body;
 
@@ -30,6 +37,13 @@ export const login = async (req, res) => {
     { expiresIn: "7d" }
   );
 
+  res.cookie("token", token, COOKIE_OPTIONS);
+
   const { password: _, ...userWithoutPassword } = user.toObject();
-  res.status(200).json({ token, user: userWithoutPassword });
+  res.status(200).json(userWithoutPassword);
+};
+
+export const logout = (req, res) => {
+  res.clearCookie("token", COOKIE_OPTIONS);
+  res.status(200).json("Logged out successfully!");
 };

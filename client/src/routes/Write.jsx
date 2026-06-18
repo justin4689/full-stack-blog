@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 import Upload from "../components/Upload";
 
 const Write = () => {
-  const { user, token } = useAuth();
+  const { user } = useAuth();
   const [value, setValue] = useState("");
   const [cover, setCover] = useState("");
   const [img, setImg] = useState("");
@@ -22,15 +22,12 @@ const Write = () => {
   }, [img]);
 
   useEffect(() => {
-    video &&
-      setValue((prev) => prev + `<p><iframe class="ql-video" src="${video.url}"/></p>`);
+    video && setValue((prev) => prev + `<p><iframe class="ql-video" src="${video.url}"/></p>`);
   }, [video]);
 
   const mutation = useMutation({
     mutationFn: async (newPost) => {
-      return axios.post(`${import.meta.env.VITE_API_URL}/posts`, newPost, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      return axios.post("/posts", newPost);
     },
     onSuccess: (res) => {
       toast.success("Post has been created");
@@ -38,21 +35,18 @@ const Write = () => {
     },
   });
 
-  if (!user) {
-    return <div className="">You should login!</div>;
-  }
+  if (!user) return <div className="">You should login!</div>;
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-    const data = {
+    mutation.mutate({
       img: cover.filePath || "",
       title: formData.get("title"),
       category: formData.get("category"),
       desc: formData.get("desc"),
       content: value,
-    };
-    mutation.mutate(data);
+    });
   };
 
   return (
@@ -81,11 +75,7 @@ const Write = () => {
             <option value="marketing">Marketing</option>
           </select>
         </div>
-        <textarea
-          className="p-4 rounded-xl bg-white shadow-md"
-          name="desc"
-          placeholder="A Short Description"
-        />
+        <textarea className="p-4 rounded-xl bg-white shadow-md" name="desc" placeholder="A Short Description" />
         <div className="flex flex-1">
           <div className="flex flex-col gap-2 mr-2">
             <Upload type="image" setProgress={setProgress} setData={setImg}>🌆</Upload>

@@ -14,11 +14,7 @@ const RegisterPage = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post(`${import.meta.env.VITE_API_URL}/auth/register`, {
-        username,
-        email,
-        password,
-      });
+      await axios.post("/auth/register", { username, email, password });
       toast.success("Account created! Please login.");
       navigate("/login");
     } catch (err) {
@@ -68,9 +64,7 @@ const RegisterPage = () => {
         </button>
         <p className="text-center text-sm text-gray-500">
           Already have an account?{" "}
-          <Link to="/login" className="text-blue-800 font-medium">
-            Login
-          </Link>
+          <Link to="/login" className="text-blue-800 font-medium">Login</Link>
         </p>
       </form>
     </div>
